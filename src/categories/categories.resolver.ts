@@ -1,8 +1,11 @@
+import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryInput } from './dto/create-category.input';
 import { UpdateCategoryInput } from './dto/update-category.input';
 
+@UseGuards(JwtAuthGuard)
 @Resolver('Category')
 export class CategoriesResolver {
   constructor(private readonly categoriesService: CategoriesService) {}

@@ -1,23 +1,26 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from 'src/users/schema/user.schema';
-import { AuthGuard } from './auth.guard';
+
 import { AuthService } from './auth.service';
-import { LoginInput } from './dto/login-input';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 
 @Resolver('Auth')
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
   @Mutation()
-  login(@Args('loginInput') loginIput: LoginInput) {
-    return this.authService.login(loginIput);
+  @UseGuards(LocalAuthGuard)
+  login(@CurrentUser() user: User) {
+    return this.authService.login(user);
   }
 
   @Query()
-  @UseGuards(AuthGuard)
-  me(@Context('user') user: User) {
-    console.log(user);
+  @UseGuards(JwtAuthGuard)
+  me(@CurrentUser() user: User) {
+    console.log({ user });
     return user;
   }
 }
